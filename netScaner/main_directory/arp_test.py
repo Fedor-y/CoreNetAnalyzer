@@ -32,12 +32,13 @@ def parse_ethernet_frame(data):
     # а также остаток пакета (payload), который пойдет дальше в IPv4
     return get_mac_addr(dest_mac), get_mac_addr(src_mac), socket.htons(proto), data[14:]
 
-#для парсинга ARP пакетов
+
+# для парсинга ARP пакетов
 def parse_arp(payload):
     """Распаковывает заголовок ARP (28 байт)"""
     # Нам нужны первые 28 байт из полезной нагрузки Ethernet
     arp_header = payload[:28]
-    
+
     # Расшифровка шаблона '!HHBBH6s4s6s4s':
     # ! - Сетевой порядок байт (Big-Endian)
     # H - 2 байта (Hardware type)
@@ -49,14 +50,14 @@ def parse_arp(payload):
     # 4s - 4 байта (IP отправителя)
     # 6s - 6 байт (MAC получателя)
     # 4s - 4 байта (IP получателя / кого ищут)
-    
-    unpacked = struct.unpack('!HHBBH6s4s6s4s', arp_header)
-    
+
+    unpacked = struct.unpack("!HHBBH6s4s6s4s", arp_header)
+
     opcode = unpacked[4]
     sender_mac = get_mac_addr(unpacked[5])
     sender_ip = socket.inet_ntoa(unpacked[6])
     target_ip = socket.inet_ntoa(unpacked[8])
-    
+
     return opcode, sender_mac, sender_ip, target_ip
 
 
@@ -79,16 +80,16 @@ def listen():
         print(f"Протокол (EtherType): {eth_proto}")
 
         # Теперь диспетчеризация (решаем, что делать дальше)
-        '''if eth_proto == 8:  # 8 - это IPv4 (0x0800)
+        if eth_proto == 8:  # 8 - это IPv4 (0x0800)
             print("  --> Внутри лежит IPv4 пакет. Нужно парсить дальше!")
-            # Здесь потом будет вызов функции parse_ipv4(payload)'''
+            # Здесь потом будет вызов функции parse_ipv4(payload)"""
 
         if eth_proto == 1544:  # 1544 - это ARP (0x0806)
             print("  --> Внутри лежит ARP запрос.")
-            print(f'{parse_arp(payload)[1:3]}')
+            print(f"{parse_arp(payload)[1:3]}")
 
-        '''elif eth_proto == 56710:  # 56710 - это IPv6 (0x86DD)
-            print("  --> Внутри лежит IPv6 пакет.")'''
+        elif eth_proto == 56710:  # 56710 - это IPv6 (0x86DD)
+            print("  --> Внутри лежит IPv6 пакет.")
 
 
 # Запуск программы
