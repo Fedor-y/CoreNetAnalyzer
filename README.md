@@ -1,2 +1,70 @@
-# CoreNetAnalyzer
-High-performance packet sniffer built from scratch in Python. Demonstrates deep knowledge of the TCP/IP stack, OOP design patterns, and raw binary data manipulation. The project provides a structured way to capture, inspect, and analyze network traffic without relying on high-level libraries.
+# CoreNetAnalyzer 🕵️‍♂️📡
+
+**CoreNetAnalyzer** — это легковесный, объектно-ориентированный сетевой сниффер и анализатор трафика, написанный на чистом Python без использования сторонних библиотек (таких как Scapy или pcap). 
+
+Проект напрямую взаимодействует с сырыми сокетами (Raw Sockets) Linux на уровне ядра (`socket.AF_PACKET`), самостоятельно распаковывая байты сетевых протоколов.
+
+## 🚀 Ключевые особенности
+
+- **Отсутствие зависимостей:** Работает на встроенных модулях Python (`socket`, `struct`, `threading`, `collections`).
+- **ООП Архитектура:** Сетевые кадры инкапсулированы в классы (`EthernetFrame`, `IPv4Packet`, `TCPSegment` и т.д.).
+- **Поддержка протоколов:** Парсинг заголовков Ethernet, ARP, IPv4, IPv6, TCP и UDP.
+- **Асинхронное логирование:** Использование паттерна "Producer-Consumer". Фоновый поток пишет данные в `.jsonl` файл, исключая блокировку основного потока захвата пакетов.
+- **In-Memory Аналитика:** Мгновенный подсчет статистики (O(1)) по протоколам и активным IP-адресам без нагрузки на диск.
+
+## 🛠 Требования
+
+- **ОС:** Linux (тестировалось на Arch Linux).
+- **Python:** 3.x+
+- **Права:** `root` (необходимо для доступа к сырым сокетами сети).
+
+## 📥 Установка
+
+Склонируйте репозиторий на вашу машину:
+
+```bash
+git clone [https://github.com/Fedor-y/CoreNetAnalyzer.git](https://github.com/Fedor-y/CoreNetAnalyzer.git)
+cd CoreNetAnalyzer/main_directory
+
+
+ИСПОЛЬЗОВАНИЕ:
+
+Вариант 1: Интерактивный режим (Аналитика в реальном времени)
+Запустите скрипт в терминале. Сниффер начнет работу и фоновую запись логов. 
+Для остановки и вывода красивого отчета нажмите Ctrl+C.
+
+sudo python main.py
+
+Пример вывода после остановки:
+
+============ ОТЧЕТ АНАЛИЗАТОРА ТРАФИКА ============
+[*] Время работы сниффера: 16.3 сек.
+
+[+] Статистика по протоколам:
+    - TCP      :    564 пакетов
+    - ARP      :     15 пакетов
+    - IPv4     :      4 пакетов
+
+[+] Топ-5 активных отправителей (Source IP):
+    - 127.0.0.1       :    370 пакетов
+    - 192.168.0.14    :     91 пакетов
+===================================================
+
+Вариант 2: Фоновый режим (Daemon)
+Идеально для длительного мониторинга сети без удержания терминала:
+
+
+sudo nohup python main.py > /dev/null 2>&1 &
+
+
+В этом режиме скрипт будет тихо собирать данные и писать их в файл network_traffic.jsonl в формате JSON Lines.
+Остановить процесс можно через команду kill.
+📂 Структура проекта
+
+    main.py — Точка входа, инициализация сокетов, многопоточности и вывод отчетов.
+
+    parsers.py — ООП-модели данных и парсеры бинарных заголовков.
+
+    network_traffic.jsonl — Файл логов (генерируется автоматически).
+
+Developed with focus on low-level network understanding and optimal performance.
